@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "579177938936",
+    "project_id": "signin-app-6cc16",
+    "storage_bucket": "signin-app-6cc16.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:579177938936:android:ebfb60e57a442da304200d",
+        "android_client_info": {
+          "package_name": "com.Spashta.GoogleSignIn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "579177938936-4ul45eo0igbn7gfjtf8uqknl9g1pjjpt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.Spashta.GoogleSignIn",
+            "certificate_hash": "70a3a52389898367c89f82a35d5c76eb7cb1cf7a"
+          }
+        },
+        {
+          "client_id": "579177938936-c3t7rbs2vrtrecihm7t916kitahqcsr6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATlFLi8vfVx43mqYNvn_Sb8dWnAO33YvU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "579177938936-c3t7rbs2vrtrecihm7t916kitahqcsr6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

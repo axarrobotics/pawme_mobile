@@ -1,0 +1,44 @@
+name: googlesignin
+description: A simple Flutter app with Google Sign-In
+
+# The following defines the version and build number for your application.
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # Firebase core for initializing Firebase
+  firebase_core: ^4.2.1
+  # Firebase Auth for authentication logic
+  firebase_auth: 6.1.2
+  # Google Sign-In package
+  google_sign_in: ^6.1.6
+  firebase_database: ^12.0.4
+  connectivity_plus: ^7.0.0
+
+  wifi_scan: ^0.4.1+2
+  wifi_iot: ^0.3.19+2
+
+
+  permission_handler: ^12.0.1
+
+  network_info_plus: ^7.0.0
+  webview_flutter: ^4.7.0
+
+
+
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
