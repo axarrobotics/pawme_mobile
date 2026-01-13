@@ -1,4 +1,4 @@
-package com.example.googlesignin
+package ai.aywalabs.pawme
 
 import io.flutter.embedding.android.FlutterActivity
 

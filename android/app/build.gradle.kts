@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.googlesignin"
+    namespace = "ai.aywalabs.pawme"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         // Specify applicationId and SDK versions
-        applicationId = "com.Spashta.GoogleSignIn"
+        applicationId = "com.Spashta.PawMe"
         minSdk = flutter.minSdkVersion  // Firebase requires minimum SDK 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

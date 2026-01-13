@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.googlesignin">
+    package="ai.aywalabs.pawme">
 
     <!-- Add these permissions for Wi-Fi and location -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="googlesignin"
+        android:label="PawMe"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

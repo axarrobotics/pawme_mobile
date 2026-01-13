@@ -1,5 +1,5 @@
-name: googlesignin
-description: A simple Flutter app with Google Sign-In
+name: pawme
+description: PawMe - Control your robot companion
 
 # The following defines the version and build number for your application.
 version: 1.0.0+1
@@ -42,3 +42,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/images/
