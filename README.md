@@ -44,3 +44,5 @@ Recomote - Show the remote control
 Home - Show the home screen
 Reels - Show the reels (daily capture of moments from device camers, saved on firebase bucket / storage)
 Settings - Show the settings screen
+
+(Right now login with email uses firebase auth, sends user link to confirm the account, later to be replaced with 6 digit code (which basically is a firebase cloud function that would be triggered when an account is added in firebase, this will generate a number saved in the firebase, when user enters this code, it will be validated with the firebase and if valid, the user will be logged in))
