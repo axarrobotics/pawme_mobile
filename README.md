@@ -1,10 +1,38 @@
-# pawme_mobile
+# PawMe Mobile
 
-A new Flutter project.
+Control your robot companion with ease and stay connected wherever you are.
+
+## 🔐 Security Setup (IMPORTANT - Read First!)
+
+**Firebase credentials are NOT included in this repository for security reasons.**
+
+### First Time Setup:
+
+1. **Run the setup script:**
+   ```bash
+   ./scripts/setup_firebase.sh
+   ```
+   This will create `.env.local` from the template.
+
+2. **Get Firebase configuration files:**
+   - Contact the project admin for:
+     - `google-services.json` (Android)
+     - `GoogleService-Info.plist` (iOS)
+   - Or download from [Firebase Console](https://console.firebase.google.com/)
+
+3. **Place files in correct locations:**
+   - Android: `android/app/google-services.json`
+   - iOS: `ios/Runner/GoogleService-Info.plist`
+
+4. **Never commit these files!** They're already in `.gitignore`
+   - `.env.local` is protected
+   - Firebase config files are protected
+
+📖 **Full security documentation:** See [SECURITY_SETUP.md](SECURITY_SETUP.md)
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This is a Flutter application for controlling PawMe robots.
 
 A few resources to get you started if this is your first Flutter project:
 
@@ -45,4 +73,21 @@ Home - Show the home screen
 Reels - Show the reels (daily capture of moments from device camers, saved on firebase bucket / storage)
 Settings - Show the settings screen
 
-(Right now login with email uses firebase auth, sends user link to confirm the account, later to be replaced with 6 digit code (which basically is a firebase cloud function that would be triggered when an account is added in firebase, this will generate a number saved in the firebase, when user enters this code, it will be validated with the firebase and if valid, the user will be logged in))
+(Right now login with email uses firebase auth, sends user link to confirm the account, later to be replaced with 6 digit code (which basically is a firebase cloud function that would be triggered when an account is added in firebase, this will generate a number saved in the firebase, when user enters this code, it will be validated with the firebase and if valid, the user will be logged in)
+
+
+# Navigate to project directory
+cd /Users/ashokjaiswal/Development/AYWA/Development/App/pawme_mobile
+# List available simulators
+flutter devices
+# Run on a specific simulator (iPhone 16 Pro)
+flutter run -d "iPhone 16 Pro"
+# Or just run on any available simulator
+flutter run
+
+# Clean the build
+flutter clean
+# Get dependencies
+flutter pub get
+# Run again
+flutter run

@@ -137,4 +137,14 @@ coverage/
 *.tar.gz
 *.rar
 
+# Firebase configuration files (contain API keys and credentials)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+ios/GoogleService-Info.plist
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.local.example
+
 

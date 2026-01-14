@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_colors.dart';
 import 'welcome_screen.dart';
-import 'home_page.dart';
+import 'main_navigation_screen.dart';
+import 'onboarding_welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,9 +28,20 @@ class _SplashScreenState extends State<SplashScreen> {
     final user = FirebaseAuth.instance.currentUser;
     
     if (user != null && user.emailVerified) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => HomePage(user: user)),
-      );
+      final prefs = await SharedPreferences.getInstance();
+      final hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
+      
+      if (!mounted) return;
+      
+      if (hasCompletedOnboarding) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainNavigationScreen(user: user)),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => OnboardingWelcomeScreen(user: user)),
+        );
+      }
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const WelcomeScreen()),

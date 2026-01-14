@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_colors.dart';
 import '../services/auth_service.dart';
-import 'home_page.dart';
+import 'main_navigation_screen.dart';
+import 'onboarding_welcome_screen.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final String email;
@@ -44,9 +46,20 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         final user = FirebaseAuth.instance.currentUser;
         
         if (user != null) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => HomePage(user: user)),
-          );
+          final prefs = await SharedPreferences.getInstance();
+          final hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
+          
+          if (!mounted) return;
+          
+          if (hasCompletedOnboarding) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => MainNavigationScreen(user: user)),
+            );
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => OnboardingWelcomeScreen(user: user)),
+            );
+          }
         }
       }
     });
