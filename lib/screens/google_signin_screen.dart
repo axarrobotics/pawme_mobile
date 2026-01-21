@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/app_colors.dart';
 import '../services/auth_service.dart';
 import 'home_page.dart';
+import 'main_scaffold.dart';
 
 class GoogleSignInScreen extends StatefulWidget {
   const GoogleSignInScreen({super.key});
@@ -26,7 +27,7 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
       if (userCredential.user != null) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => HomePage(user: userCredential.user!),
+            builder: (context) => MainScaffold(user: userCredential.user!),
           ),
         );
       }

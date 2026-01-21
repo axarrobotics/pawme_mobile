@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/app_colors.dart';
 import '../services/auth_service.dart';
 import 'home_page.dart';
+import 'main_scaffold.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final String email;
@@ -45,7 +46,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         
         if (user != null) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => HomePage(user: user)),
+            MaterialPageRoute(builder: (context) => MainScaffold(user: user)),
           );
         }
       }

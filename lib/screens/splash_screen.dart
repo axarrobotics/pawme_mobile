@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/app_colors.dart';
 import 'welcome_screen.dart';
 import 'home_page.dart';
+import 'main_scaffold.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -27,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     
     if (user != null && user.emailVerified) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => HomePage(user: user)),
+        MaterialPageRoute(builder: (context) => MainScaffold(user: user)),
       );
     } else {
       Navigator.of(context).pushReplacement(
