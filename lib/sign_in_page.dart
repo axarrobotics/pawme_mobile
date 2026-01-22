@@ -199,7 +199,7 @@ class _SignInPageState extends State<SignInPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(28),
                       image: const DecorationImage(
-                        image: AssetImage('assets/images/robot.jpeg'),
+                        image: AssetImage('assets/images/robot.png'),
                         fit: BoxFit.cover,
                       ),
                     ),

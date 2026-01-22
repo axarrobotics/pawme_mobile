@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "579177938936",
+    "firebase_url": "https://signin-app-6cc16-default-rtdb.firebaseio.com",
     "project_id": "signin-app-6cc16",
     "storage_bucket": "signin-app-6cc16.firebasestorage.app"
   },

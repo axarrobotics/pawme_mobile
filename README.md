@@ -14,3 +14,33 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+Screen 1 - Slash screen
+Screen 2 - Welcome screen
+Screen 3 - Login screen
+Screen 4 - Register screen
+Screen 5 - Home screen
+Screen 6 - Robot profile screen with list of robots and on top Add New Robot button
+Screen 7 - Robot detail screen
+Screen 8 - Robot settings screen
+Screen 9 - Instruction, we will now add a new robot (Continue Button) (when clicked on Add New Robot button)
+Screen 10 - Title: Enable Pairing Mode ( Subtitle: Follow the instructions to enable pairing mode on your robot)
+Screen 11 - Press and hold the pairing button on your robot for 5 seconds
+Screen 12 - Your robot is now in pairing mode
+Screen 13 - Choose the Roboto Wifi network from the list below Starting with PawMe-XXXX (XXXX MacID of the robot)
+Scren 14 - Choose your home network from the list below
+Screen 15 - Enter your home network password
+Screen 16 - Connecting Robot to your home network
+Screen 17 - Robot connected to your home network (or failed)
+load screen Screen 6 - Robot profile screen with list of robots and on top Add New Robot button
+
+
+Bottom Menus
+
+Feed | Recomote | Home | Reels | Settings 
+
+Feed - Show the video feed
+Recomote - Show the remote control
+Home - Show the home screen
+Reels - Show the reels (daily capture of moments from device camers, saved on firebase bucket / storage)
+Settings - Show the settings screen
