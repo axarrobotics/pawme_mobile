@@ -5,6 +5,7 @@ import '../constants/app_colors.dart';
 import '../services/auth_service.dart';
 import '../services/theme_provider.dart';
 import 'welcome_screen.dart';
+import 'add_robot_instruction_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -87,6 +88,22 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 24),
+          _sectionTitle('Robots'),
+
+          _navTile(
+            icon: Icons.add_circle_outline,
+            title: 'Add New Robot',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AddRobotInstructionScreen(),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 24),
           _sectionTitle('Account'),
 
           _navTile(
@@ -145,12 +162,13 @@ class SettingsScreen extends StatelessWidget {
   Widget _navTile({
     required IconData icon,
     required String title,
+    VoidCallback? onTap,
   }) {
     return ListTile(
       leading: Icon(icon, color: AppColors.primary),
       title: Text(title),
       trailing: const Icon(Icons.chevron_right),
-      onTap: () {},
+      onTap: onTap ?? () {},
     );
   }
 

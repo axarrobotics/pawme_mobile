@@ -74,26 +74,50 @@ class ReelsScreen extends StatelessWidget {
 
           // ================= GRID =================
           Expanded(
-            child: GridView.builder(
+            child: GridView.count(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              gridDelegate:
-              const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.7,
-              ),
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return _ReelCard(
-                  robotName:
-                  index % 2 == 0 ? 'Rex Unit 01' : 'Rover Scout',
-                  time: index % 2 == 0
-                      ? 'Today · 14:30'
-                      : 'Yesterday · 09:15',
-                  duration: index % 2 == 0 ? '00:15' : '00:12',
-                );
-              },
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.7,
+              children: const [
+                _ReelCard(
+                  robotName: 'Rex Unit 01',
+                  time: 'Today · 14:30',
+                  duration: '00:15',
+                  imageUrl: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&q=80',
+                ),
+                _ReelCard(
+                  robotName: 'Rover Scout',
+                  time: 'Yesterday · 09:15',
+                  duration: '00:12',
+                  imageUrl: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=600&q=80',
+                ),
+                _ReelCard(
+                  robotName: 'Rex Unit 01',
+                  time: 'Today · 14:30',
+                  duration: '00:15',
+                  imageUrl: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&q=80',
+                ),
+                _ReelCard(
+                  robotName: 'Rover Scout',
+                  time: 'Yesterday · 09:15',
+                  duration: '00:12',
+                  imageUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&q=80',
+                ),
+                _ReelCard(
+                  robotName: 'Rex Unit 01',
+                  time: '2 days ago · 16:45',
+                  duration: '00:18',
+                  imageUrl: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&q=80',
+                ),
+                _ReelCard(
+                  robotName: 'Rover Scout',
+                  time: '3 days ago · 11:20',
+                  duration: '00:22',
+                  imageUrl: 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?w=600&q=80',
+                ),
+              ],
             ),
           ),
         ],
@@ -106,11 +130,13 @@ class _ReelCard extends StatelessWidget {
   final String robotName;
   final String time;
   final String duration;
+  final String? imageUrl;
 
   const _ReelCard({
     required this.robotName,
     required this.time,
     required this.duration,
+    this.imageUrl,
   });
 
   @override
@@ -135,24 +161,62 @@ class _ReelCard extends StatelessWidget {
           // ================= THUMBNAIL =================
           Stack(
             children: [
-              Container(
-                height: 140,
-                decoration: BoxDecoration(
-                  color: theme.brightness == Brightness.light
-                      ? Colors.grey.shade300
-                      : theme.cardColor,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.play_circle_outline,
-                    size: 48,
+                child: Container(
+                  height: 140,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
                     color: theme.brightness == Brightness.light
-                        ? Colors.white
-                        : theme.iconTheme.color,
+                        ? Colors.grey.shade300
+                        : theme.cardColor,
                   ),
+                  child: imageUrl != null
+                      ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(
+                              imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Icon(
+                                    Icons.play_circle_outline,
+                                    size: 48,
+                                    color: theme.brightness == Brightness.light
+                                        ? Colors.white
+                                        : theme.iconTheme.color,
+                                  ),
+                                );
+                              },
+                            ),
+                            Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.play_circle_outline,
+                                  size: 36,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Center(
+                          child: Icon(
+                            Icons.play_circle_outline,
+                            size: 48,
+                            color: theme.brightness == Brightness.light
+                                ? Colors.white
+                                : theme.iconTheme.color,
+                          ),
+                        ),
                 ),
               ),
 

@@ -46,3 +46,5 @@ flutter:
   
   assets:
     - assets/images/
+    - assets/images/dog-line-graphic.png
+    - assets/images/red-gradient.png

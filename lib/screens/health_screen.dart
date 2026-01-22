@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/app_colors.dart';
 
-class HomePage extends StatefulWidget {
-  final User user;
-  const HomePage({super.key, required this.user});
+class HealthScreen extends StatelessWidget {
+  const HealthScreen({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -52,7 +45,7 @@ class _HomePageState extends State<HomePage> {
                 Icon(Icons.favorite_border, color: Colors.white, size: 48),
                 SizedBox(height: 12),
                 Text(
-                  'Possible Health Issues',
+                  'Health Analysis',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -86,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                   severityColor: Colors.orange,
                   detectedTime: '2 hours ago',
                   description: 'Redness and scratching detected in neck area',
-                  spotPosition: const Offset(0.35, 0.15), // neck position
+                  spotPosition: const Offset(0.5, 0.25), // neck position
                 ),
 
                 const SizedBox(height: 16),
@@ -99,10 +92,8 @@ class _HomePageState extends State<HomePage> {
                   severityColor: Colors.red,
                   detectedTime: '30 minutes ago',
                   description: 'Limping and sensitivity detected in rear thigh',
-                  spotPosition: const Offset(0.65, 0.65), // thigh position
+                  spotPosition: const Offset(0.7, 0.7), // thigh position
                 ),
-
-                const SizedBox(height: 100), // Space for floating nav bar
               ],
             ),
           ),
@@ -133,9 +124,9 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Dog silhouette with gradient spot
+          // Dog silhouette with red spot
           Container(
-            height: 220,
+            height: 200,
             width: double.infinity,
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.light
@@ -145,67 +136,47 @@ class _HomePageState extends State<HomePage> {
                 top: Radius.circular(16),
               ),
             ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-              child: Stack(
-                children: [
-                  // Dog line graphic - full width
-                  Positioned.fill(
-                    child: Image.asset(
-                      'assets/images/dog-line-graphic.png',
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        print('ERROR loading dog-line-graphic.png: $error');
-                        // Fallback to custom painted dog if image not found
-                        return Center(
-                          child: CustomPaint(
-                            size: const Size(280, 200),
-                            painter: DogOutlinePainter(
-                              color: theme.brightness == Brightness.light
-                                  ? Colors.grey.shade400
-                                  : Colors.grey.shade600,
-                            ),
-                          ),
-                        );
-                      },
+            child: Stack(
+              children: [
+                // Dog outline
+                Center(
+                  child: CustomPaint(
+                    size: const Size(180, 180),
+                    painter: DogOutlinePainter(
+                      color: theme.brightness == Brightness.light
+                          ? Colors.grey.shade400
+                          : Colors.grey.shade600,
                     ),
                   ),
-                  // Gradient spot overlay on top
-                  Positioned(
-                    left: spotPosition.dx * MediaQuery.of(context).size.width * 0.8,
-                    top: spotPosition.dy * 200,
-                    child: Image.asset(
-                      'assets/images/red-gradient.png',
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        print('ERROR loading red-gradient.png: $error');
-                        // Fallback to custom painted gradient if image not found
-                        return Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                severityColor.withOpacity(0.8),
-                                severityColor.withOpacity(0.4),
-                                severityColor.withOpacity(0.1),
-                                Colors.transparent,
-                              ],
-                              stops: const [0.0, 0.4, 0.7, 1.0],
-                            ),
-                          ),
-                        );
-                      },
+                ),
+                // Red spot indicator
+                Positioned(
+                  left: spotPosition.dx * 180 + 90,
+                  top: spotPosition.dy * 180 + 10,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: severityColor.withOpacity(0.3),
+                      border: Border.all(
+                        color: severityColor,
+                        width: 3,
+                      ),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: severityColor,
+                        ),
+                      ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
 
@@ -302,7 +273,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Custom painter for dog outline (fallback)
+// Custom painter for dog outline
 class DogOutlinePainter extends CustomPainter {
   final Color color;
 
@@ -313,52 +284,47 @@ class DogOutlinePainter extends CustomPainter {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5;
+      ..strokeWidth = 3.0;
 
     final path = Path();
+
+    // Simple dog silhouette outline
     final centerX = size.width / 2;
     final centerY = size.height / 2;
 
-    // Simplified dog silhouette
-    // Head
+    // Head (circle)
     path.addOval(Rect.fromCircle(
-      center: Offset(centerX - 60, centerY - 30),
-      radius: 22,
+      center: Offset(centerX - 30, centerY - 40),
+      radius: 25,
     ));
 
     // Ear
-    path.moveTo(centerX - 70, centerY - 48);
-    path.lineTo(centerX - 78, centerY - 60);
-    path.lineTo(centerX - 65, centerY - 52);
+    path.moveTo(centerX - 40, centerY - 60);
+    path.lineTo(centerX - 50, centerY - 75);
+    path.lineTo(centerX - 35, centerY - 65);
 
-    // Body
+    // Body (ellipse)
     path.addOval(Rect.fromCenter(
-      center: Offset(centerX + 10, centerY - 5),
-      width: 100,
-      height: 55,
+      center: Offset(centerX + 10, centerY),
+      width: 80,
+      height: 50,
     ));
 
-    // Front legs
-    path.moveTo(centerX - 25, centerY + 18);
-    path.lineTo(centerX - 25, centerY + 55);
-    
-    path.moveTo(centerX - 10, centerY + 18);
-    path.lineTo(centerX - 10, centerY + 55);
+    // Front leg
+    path.moveTo(centerX - 15, centerY + 20);
+    path.lineTo(centerX - 15, centerY + 60);
 
-    // Back legs
-    path.moveTo(centerX + 40, centerY + 18);
-    path.lineTo(centerX + 40, centerY + 55);
-    
-    path.moveTo(centerX + 52, centerY + 18);
-    path.lineTo(centerX + 52, centerY + 55);
+    // Back leg
+    path.moveTo(centerX + 30, centerY + 20);
+    path.lineTo(centerX + 30, centerY + 60);
 
     // Tail
-    path.moveTo(centerX + 60, centerY - 10);
+    path.moveTo(centerX + 50, centerY - 5);
     path.quadraticBezierTo(
-      centerX + 75,
-      centerY - 25,
-      centerX + 72,
-      centerY - 40,
+      centerX + 65,
+      centerY - 20,
+      centerX + 60,
+      centerY - 35,
     );
 
     canvas.drawPath(path, paint);
