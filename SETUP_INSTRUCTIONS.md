@@ -3,7 +3,7 @@
 ## ✅ Completed Changes
 
 ### 1. **New Theme & Branding**
-- Primary color: `#02ADA9` (teal/turquoise)
+- Primary color: `#7678EE` (teal/turquoise)
 - Clean white background with modern UI
 - All colors defined in `lib/constants/app_colors.dart`
 - Theme configuration in `lib/constants/app_theme.dart`
@@ -186,7 +186,7 @@ To create proper app icons from your logo:
 ```
 lib/
 ├── constants/
-│   ├── app_colors.dart      # Theme colors (#02ADA9)
+│   ├── app_colors.dart      # Theme colors (#7678EE)
 │   └── app_theme.dart        # Material theme config
 ├── screens/
 │   ├── splash_screen.dart
@@ -203,5 +203,5 @@ lib/
 ---
 
 **Build Status:** ✅ **SUCCESS**  
-**Theme Color:** `#02ADA9`  
+**Theme Color:** `#7678EE`  
 **Ready to run:** Once logo images are added

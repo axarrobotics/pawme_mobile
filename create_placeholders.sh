@@ -6,7 +6,7 @@
 # PawMe logo placeholder (teal circle)
 cat > /tmp/pawme_logo.svg << 'SVGEOF'
 <svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="240" fill="#02ADA9"/>
+  <circle cx="256" cy="256" r="240" fill="#7678EE"/>
   <text x="256" y="280" font-family="Arial" font-size="80" fill="white" text-anchor="middle" font-weight="bold">PawMe</text>
 </svg>
 SVGEOF
