@@ -5,6 +5,7 @@ import '../services/auth_service.dart';
 import 'welcome_screen.dart';
 import 'robot_detail_page.dart';
 import 'add_robot_instruction_screen.dart';
+import 'health_showcase_screen.dart'; // ✅ NEW IMPORT
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -61,7 +62,6 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-
                   SizedBox(
                     width: 130,
                     child: Column(
@@ -131,6 +131,7 @@ class _HomePageState extends State<HomePage> {
                     status: 'CHARGING',
                   ),
                   _buildAddRobotCard(),
+                  _buildHealthShowcaseCard(), // ✅ NEW CARD
                 ],
               ),
 
@@ -199,7 +200,6 @@ class _HomePageState extends State<HomePage> {
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
-
         border: theme.brightness == Brightness.light
             ? Border.all(
           color: AppColors.divider.withOpacity(0.6),
@@ -222,9 +222,7 @@ class _HomePageState extends State<HomePage> {
               Icon(Icons.show_chart, color: _accentBlue),
             ],
           ),
-
           const SizedBox(height: 4),
-
           Row(
             children: [
               Icon(
@@ -235,15 +233,10 @@ class _HomePageState extends State<HomePage> {
                     : Colors.orangeAccent,
               ),
               const SizedBox(width: 6),
-              Text(
-                status,
-                style: theme.textTheme.bodySmall,
-              ),
+              Text(status, style: theme.textTheme.bodySmall),
             ],
           ),
-
           const SizedBox(height: 16),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -251,13 +244,11 @@ class _HomePageState extends State<HomePage> {
               _buildMetric('Signal', signal, Icons.wifi),
             ],
           ),
-
           const SizedBox(height: 16),
-
           SizedBox(
             width: double.infinity,
             height: 48,
-            child: ElevatedButton.icon(
+            child: ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -271,15 +262,13 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               },
-              icon: const Icon(Icons.info_outline, size: 18),
-              label: const Text('Details'),
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                isOnline ? _accentBlue : Colors.grey,
+                backgroundColor: isOnline ? _accentBlue : Colors.grey,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
+              child: const Text('Details'),
             ),
           ),
         ],
@@ -287,9 +276,57 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildMetric(String label, String value, IconData icon) {
+  // ================= HEALTH SHOWCASE CARD =================
+  Widget _buildHealthShowcaseCard() {
     final theme = Theme.of(context);
 
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const HealthShowcaseScreen(),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: theme.brightness == Brightness.light
+              ? Border.all(
+            color: AppColors.primary.withOpacity(0.4),
+            width: 1.2,
+          )
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.favorite,
+                size: 36, color: AppColors.primary),
+            const SizedBox(height: 12),
+            Text(
+              'Health Showcase',
+              style: theme.textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Why your dog’s health matters',
+              style: theme.textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetric(String label, String value, IconData icon) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -301,10 +338,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: theme.textTheme.titleMedium,
-        ),
+        Text(value, style: theme.textTheme.titleMedium),
       ],
     );
   }
