@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import 'email_registration_screen.dart';
 import 'google_signin_screen.dart';
+import 'signin_screen.dart'; // ✅ NEW IMPORT
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -16,15 +17,15 @@ class WelcomeScreen extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(),
-              
+
               Image.asset(
                 'assets/images/pawme_logo.png',
                 width: 180,
                 height: 180,
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               Text(
                 'Welcome to PawMe',
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(
@@ -33,9 +34,9 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               Text(
                 'Control your robot companion with ease',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -43,9 +44,9 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const Spacer(),
-              
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -53,16 +54,17 @@ class WelcomeScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const EmailRegistrationScreen(),
+                        builder: (context) =>
+                        const EmailRegistrationScreen(),
                       ),
                     );
                   },
                   child: const Text('Sign up with Email'),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -94,7 +96,39 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
+              // ✅ NEW TEXT ROW
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Already have an account? ',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SignInScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Sign in',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
               const SizedBox(height: 32),
             ],
           ),

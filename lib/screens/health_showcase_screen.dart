@@ -112,46 +112,54 @@ class HealthShowcaseScreen extends StatelessWidget {
     required String title,
     required String description,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x11000000),
-            blurRadius: 8,
-            offset: Offset(0, 4),
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.cardColor, // ✅ FIX
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: theme.brightness == Brightness.light
+                ? const [
+              BoxShadow(
+                color: Color(0x11000000),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ]
+                : null, // ✅ no shadow in dark mode
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: AppColors.primary, size: 28),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: AppColors.primary, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ), // ✅ FIX
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      description,
+                      style: theme.textTheme.bodyMedium, // ✅ FIX
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 14),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
+
 }
