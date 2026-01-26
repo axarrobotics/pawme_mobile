@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/app_colors.dart';
+import '../services/auth_service.dart';
+import 'welcome_screen.dart';
+import 'robot_detail_page.dart';
+import 'add_robot_instruction_screen.dart';
+import 'health_showcase_screen.dart'; // ✅ NEW IMPORT
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -11,6 +16,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Color get _accentBlue => AppColors.primary;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -18,15 +25,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        title: const Text(
-          'Health Monitor',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -35,78 +33,435 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // ================= HEADER =================
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 28),
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(32),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+
+              // ================= HEADER =================
+              Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundImage:
+                          NetworkImage(widget.user.photoURL ?? ''),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hello, ${widget.user.displayName?.split(" ").first ?? 'User'}!',
+                              style: theme.textTheme.titleLarge,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              'Welcome back to PawMe',
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 130,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.settings_outlined),
+                          onPressed: () {},
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await AuthService().signOut();
+                              if (mounted) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const WelcomeScreen(),
+                                  ),
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.cardColor,
+                              foregroundColor:
+                              theme.textTheme.bodyLarge?.color,
+                              elevation: 0,
+                              padding:
+                              const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text('Logout'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            child: Column(
-              children: const [
-                Icon(Icons.favorite_border, color: Colors.white, size: 48),
-                SizedBox(height: 12),
-                Text(
-                  'Possible Health Issues',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+
+              const SizedBox(height: 30),
+
+              // ================= ROBOTS =================
+              Text(
+                'Your Robots',
+                style: theme.textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 16),
+
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                childAspectRatio: 0.8,
+                children: [
+                  _buildRobotCard('Rex Unit 01', '85%', '92%', true),
+                  _buildRobotCard(
+                    'Rover Scout',
+                    '15%',
+                    '0%',
+                    false,
+                    status: 'CHARGING',
                   ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'AI-powered health monitoring',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
+                  _buildAddRobotCard(),
+                  _buildHealthShowcaseCard(), // ✅ NEW CARD
+                ],
+              ),
+
+              const SizedBox(height: 30),
+
+              // ================= DAILY ROUTINES =================
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Daily Routines',
+                    style: theme.textTheme.headlineMedium,
                   ),
-                ),
-              ],
-            ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Manage All',
+                      style: TextStyle(color: _accentBlue),
+                    ),
+                  ),
+                ],
+              ),
+
+              _buildRoutineItem(
+                Icons.medication_outlined,
+                Colors.redAccent,
+                'Morning Medicine',
+                '08:00 AM',
+                true,
+              ),
+              _buildRoutineItem(
+                Icons.restaurant_outlined,
+                Colors.orangeAccent,
+                'Breakfast Kibble',
+                '08:30 AM',
+                true,
+              ),
+              _buildRoutineItem(
+                Icons.directions_walk_outlined,
+                Colors.greenAccent,
+                'Park Walk',
+                '05:00 PM',
+                false,
+              ),
+
+              const SizedBox(height: 30),
+
+              // ================= HEALTH ISSUES =================
+              Text(
+                'Possible Health Issues',
+                style: theme.textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 16),
+
+              _buildHealthIssueCard(
+                theme: theme,
+                title: 'Neck Area - Skin Irritation',
+                severity: 'Medium',
+                severityColor: Colors.orange,
+                detectedTime: '2 hours ago',
+                description: 'Redness and scratching detected in neck area',
+                spotPosition: const Offset(0.35, 0.15),
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildHealthIssueCard(
+                theme: theme,
+                title: 'Rear Thigh - Possible Injury',
+                severity: 'High',
+                severityColor: Colors.red,
+                detectedTime: '30 minutes ago',
+                description: 'Limping and sensitivity detected in rear thigh',
+                spotPosition: const Offset(0.65, 0.65),
+              ),
+
+              const SizedBox(height: 30),
+            ],
           ),
+        ),
+      ),
+    );
+  }
 
+  // ================= ROBOT CARD =================
+  Widget _buildRobotCard(
+      String name,
+      String battery,
+      String signal,
+      bool isOnline, {
+        String status = 'ONLINE',
+      }) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: theme.brightness == Brightness.light
+            ? Border.all(
+          color: AppColors.divider.withOpacity(0.6),
+          width: 1,
+        )
+            : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  name,
+                  style: theme.textTheme.titleMedium,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(Icons.show_chart, color: _accentBlue),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: isOnline
+                    ? Colors.greenAccent
+                    : Colors.orangeAccent,
+              ),
+              const SizedBox(width: 6),
+              Text(status, style: theme.textTheme.bodySmall),
+            ],
+          ),
           const SizedBox(height: 16),
-
-          // ================= SPLIT VIEW =================
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                // Top Part - Neck Issue
-                _buildHealthIssueCard(
-                  theme: theme,
-                  title: 'Neck Area - Skin Irritation',
-                  severity: 'Medium',
-                  severityColor: Colors.orange,
-                  detectedTime: '2 hours ago',
-                  description: 'Redness and scratching detected in neck area',
-                  spotPosition: const Offset(0.35, 0.15), // neck position
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildMetric('Battery', battery, Icons.battery_charging_full),
+              _buildMetric('Signal', signal, Icons.wifi),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => RobotDetailPage(
+                      name: name,
+                      battery: battery,
+                      signal: signal,
+                      status: status,
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isOnline ? _accentBlue : Colors.grey,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-
-                const SizedBox(height: 16),
-
-                // Bottom Part - Thigh Issue
-                _buildHealthIssueCard(
-                  theme: theme,
-                  title: 'Rear Thigh - Possible Injury',
-                  severity: 'High',
-                  severityColor: Colors.red,
-                  detectedTime: '30 minutes ago',
-                  description: 'Limping and sensitivity detected in rear thigh',
-                  spotPosition: const Offset(0.65, 0.65), // thigh position
-                ),
-
-                const SizedBox(height: 100), // Space for floating nav bar
-              ],
+              ),
+              child: const Text('Details'),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ================= HEALTH SHOWCASE CARD =================
+  Widget _buildHealthShowcaseCard() {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const HealthShowcaseScreen(),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: theme.brightness == Brightness.light
+              ? Border.all(
+            color: AppColors.primary.withOpacity(0.4),
+            width: 1.2,
+          )
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.favorite,
+                size: 36, color: AppColors.primary),
+            const SizedBox(height: 12),
+            Text(
+              'Health Showcase',
+              style: theme.textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Why your dog’s health matters',
+              style: theme.textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetric(String label, String value, IconData icon) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 12, color: theme.iconTheme.color),
+            const SizedBox(width: 4),
+            Text(label, style: theme.textTheme.bodySmall),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(value, style: theme.textTheme.titleMedium),
+      ],
+    );
+  }
+
+  Widget _buildAddRobotCard() {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AddRobotInstructionScreen(),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: theme.dividerColor),
+        ),
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, size: 32),
+            SizedBox(height: 8),
+            Text('Connect New Robot'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoutineItem(
+      IconData icon,
+      Color iconBg,
+      String title,
+      String time,
+      bool isDone,
+      ) {
+    final theme = Theme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: theme.brightness == Brightness.light
+            ? Border.all(
+                color: AppColors.divider.withOpacity(0.6),
+              )
+            : null,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: iconBg.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: iconBg, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 2),
+                  Text(time, style: theme.textTheme.bodySmall),
+                ],
+              ),
+            ),
+            Icon(
+              isDone ? Icons.check_circle : Icons.radio_button_unchecked,
+              color: isDone ? Colors.greenAccent : theme.iconTheme.color,
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -175,7 +530,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                   // Gradient spot overlay on top
                   Positioned(
-                    left: spotPosition.dx * MediaQuery.of(context).size.width * 0.8,
+                    left: spotPosition.dx *
+                        MediaQuery.of(context).size.width *
+                        0.8,
                     top: spotPosition.dy * 200,
                     child: Image.asset(
                       'assets/images/red-gradient.png',
