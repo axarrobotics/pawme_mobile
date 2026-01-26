@@ -39,6 +39,10 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    const barHeight = 64.0;
+    const fabSize = 72.0;
+    const barBottomPadding = 16.0;
     
     return Scaffold(
       body: Stack(
@@ -49,29 +53,64 @@ class _MainScaffoldState extends State<MainScaffold> {
           Positioned(
             left: 20,
             right: 20,
-            bottom: 20,
+            bottom: barBottomPadding + bottomInset,
             child: Container(
-              height: 70,
+              height: barHeight,
               decoration: BoxDecoration(
                 color: isDark ? theme.cardColor : Colors.white,
-                borderRadius: BorderRadius.circular(35),
+                borderRadius: BorderRadius.circular(barHeight / 2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.15),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.18),
+                    blurRadius: 28,
+                    offset: const Offset(0, 12),
                   ),
                 ],
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildNavItem(0, Icons.view_stream_outlined, 'Feed'),
-                  _buildNavItem(1, Icons.gamepad_outlined, 'Remote'),
-                  _buildNavItem(2, Icons.favorite, 'Health', isCenter: true),
-                  _buildNavItem(3, Icons.video_library_outlined, 'Reels'),
-                  _buildNavItem(4, Icons.settings_outlined, 'Settings'),
+                  Expanded(child: _buildNavItem(0, Icons.view_stream_outlined, 'Feed')),
+                  Expanded(child: _buildNavItem(1, Icons.gamepad_outlined, 'Remote')),
+                  const SizedBox(width: fabSize),
+                  Expanded(child: _buildNavItem(3, Icons.video_library_outlined, 'Reels')),
+                  Expanded(child: _buildNavItem(4, Icons.settings_outlined, 'Settings')),
                 ],
+              ),
+            ),
+          ),
+
+          // Floating center Health button (separate from the toolbar)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: barBottomPadding +
+                bottomInset +
+                ((barHeight - fabSize) / 2),
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() => _currentIndex = 2);
+                },
+                child: Container(
+                  width: fabSize,
+                  height: fabSize,
+                  decoration: BoxDecoration(
+                    color: _currentIndex == 2 ? Colors.black : Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.22),
+                        blurRadius: 22,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.favorite,
+                    size: 32,
+                    color: _currentIndex == 2 ? Colors.white : Colors.grey,
+                  ),
+                ),
               ),
             ),
           ),
@@ -80,51 +119,49 @@ class _MainScaffoldState extends State<MainScaffold> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label, {bool isCenter = false}) {
+  Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = _currentIndex == index;
     
     return GestureDetector(
       onTap: () {
         setState(() => _currentIndex = index);
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isCenter && isSelected
-              ? Colors.black
-              : isSelected
-                  ? AppColors.primary.withOpacity(0.1)
-                  : Colors.transparent,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isCenter && isSelected
-                  ? Colors.white
-                  : isSelected
-                      ? AppColors.primary
-                      : Colors.grey,
-              size: isCenter ? 28 : 24,
+      child: Center(
+        child: SizedBox(
+          height: 42,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
             ),
-            if (!isCenter || isSelected)
-              const SizedBox(height: 4),
-            if (!isCenter || isSelected)
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: isCenter && isSelected
-                      ? Colors.white
-                      : isSelected
-                          ? AppColors.primary
-                          : Colors.grey,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected ? AppColors.primary : Colors.grey,
+                  size: 20,
                 ),
-              ),
-          ],
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 9,
+                      height: 1.0,
+                      color: isSelected ? AppColors.primary : Colors.grey,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

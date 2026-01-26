@@ -139,13 +139,24 @@ class HealthScreen extends StatelessWidget {
             child: Stack(
               children: [
                 // Dog outline
-                Center(
-                  child: CustomPaint(
-                    size: const Size(180, 180),
-                    painter: DogOutlinePainter(
-                      color: theme.brightness == Brightness.light
-                          ? Colors.grey.shade400
-                          : Colors.grey.shade600,
+                Positioned.fill(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Image.asset(
+                      'assets/images/dog_line.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: CustomPaint(
+                            size: const Size(180, 180),
+                            painter: DogOutlinePainter(
+                              color: theme.brightness == Brightness.light
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade600,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
