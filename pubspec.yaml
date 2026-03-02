@@ -12,22 +12,21 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.6
 
-  # Firebase core for initializing Firebase
-  firebase_core: ^4.2.1
-  # Firebase Auth for authentication logic
-  firebase_auth: 6.1.2
-  # Google Sign-In package
-  google_sign_in: ^6.1.6
-  firebase_database: ^12.0.4
-  connectivity_plus: ^7.0.0
+  # Updated Firebase stack (Aligned for 2026 compatibility)
+  firebase_core: ^4.4.0
+  firebase_auth: ^6.1.4
+  firebase_storage: ^13.0.6
+  firebase_database: ^12.1.3
+  google_sign_in: ^6.2.0
 
+  # Connectivity & Hardware
+  connectivity_plus: ^7.0.0
   wifi_scan: ^0.4.1+2
   wifi_iot: ^0.3.19+2
-
-
   permission_handler: ^12.0.1
-
   network_info_plus: ^7.0.0
+
+  # UI & Media
   webview_flutter: ^4.7.0
   provider: ^6.0.5
   http: ^1.1.0
@@ -35,10 +34,12 @@ dependencies:
   flutter_mjpeg: ^2.0.1
   nsd: ^4.0.3
 
+  # Recording & Persistence
+  ffmpeg_kit_flutter_new: ^4.1.0
+  path_provider: ^2.1.5
 
-
-
-
+  gal: ^2.3.2
+  media_scanner: ^2.2.0
 
 dev_dependencies:
   flutter_test:
@@ -48,11 +49,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
+
   assets:
     - assets/images/
     - assets/icon/app_icon.png
-
 
 flutter_icons:
   android: true
@@ -63,4 +63,3 @@ flutter_icons:
 
 dependency_overrides:
   http: ^1.1.0
-

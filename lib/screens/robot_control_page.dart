@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:nsd/nsd.dart';
-import '../constants/app_colors.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new/return_code.dart';
+import 'package:ffmpeg_kit_flutter_new/session.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:media_scanner/media_scanner.dart';
+import 'dart:io';
+import 'dart:async';
 
 class RobotControlPage extends StatefulWidget {
   const RobotControlPage({super.key});
@@ -13,8 +19,16 @@ class RobotControlPage extends StatefulWidget {
 class _RobotControlPageState extends State<RobotControlPage> {
   String? _robotIp;
   bool _isSearching = true;
-  String _statusMessage = "Initializing search...";
+  bool _isRecording = false;
+  bool _showPreview = true;
+
   Discovery? _discovery;
+
+  Timer? _timer;
+  Duration _recordDuration = Duration.zero;
+
+  String? _localVideoPath;
+  Session? _ffmpegSession;
 
   @override
   void initState() {
@@ -22,205 +36,201 @@ class _RobotControlPageState extends State<RobotControlPage> {
     _startDiscovery();
   }
 
+  /* =========================
+     DISCOVERY
+     ========================= */
+
   Future<void> _startDiscovery() async {
-    setState(() {
-      _isSearching = true;
-      _robotIp = null;
-      _statusMessage = "Searching for Pawme on WiFi...";
-    });
+    _discovery = await startDiscovery('_http._tcp');
 
-    debugPrint("--- MDNS DISCOVERY STARTED ---");
-
-    try {
-      // Searching for the service defined in your firmware
-      // We use '_http._tcp' as a fallback if '_pawme-cam._tcp' isn't being picked up
-      _discovery = await startDiscovery('_http._tcp');
-
-      debugPrint("NSD: Discovery object created. Listening for responses...");
-
-      _discovery!.addListener(() {
-        final services = _discovery!.services;
-        debugPrint("NSD: Found ${services.length} services on network.");
-
-        for (var service in services) {
-          debugPrint("NSD: Found Service -> Name: ${service.name}, IP: ${service.addresses?.first.address}, Port: ${service.port}");
-
-          // Logic to identify your robot: check port 81 (camera) or the name "pawme"
-          if (service.port == 81 || service.name?.toLowerCase().contains("pawme") == true) {
-            debugPrint("NSD: MATCH FOUND! Connecting to ${service.addresses?.first.address}");
-
-            if (mounted) {
-              setState(() {
-                _robotIp = service.addresses?.first.address;
-                _isSearching = false;
-              });
-            }
+    _discovery!.addListener(() {
+      if (_discovery!.services.isNotEmpty) {
+        final service = _discovery!.services.first;
+        if (service.port == 81 || service.port == 80) {
+          final ip = service.addresses?.first.address;
+          if (ip != null) {
+            setState(() {
+              _robotIp = ip;
+              _isSearching = false;
+            });
             stopDiscovery(_discovery!);
-            return;
           }
         }
-      });
+      }
+    });
+  }
 
-      // Timeout logic
-      await Future.delayed(const Duration(seconds: 8));
-      if (_isSearching && mounted) {
-        debugPrint("NSD: Discovery timed out after 8 seconds.");
-        setState(() {
-          _isSearching = false;
-          _statusMessage = "Robot not found. Is it on the same WiFi?";
-        });
-        if (_discovery != null) stopDiscovery(_discovery!);
+  /* =========================
+     RECORDING
+     ========================= */
+
+  void _toggleRecording() {
+    if (_robotIp == null) return;
+
+    if (!_isRecording) {
+      _startRecording();
+    } else {
+      _stopRecording();
+    }
+  }
+
+  Future<void> _startRecording() async {
+
+    // 1️⃣ Remove preview completely (destroy widget)
+    setState(() {
+      _isRecording = true;
+      _showPreview = false;
+    });
+
+    // 2️⃣ Wait long enough for ESP32 to release stream
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    final tempDir = await getTemporaryDirectory();
+    _localVideoPath =
+    '${tempDir.path}/pawme_${DateTime.now().millisecondsSinceEpoch}.mp4';
+
+    _recordDuration = Duration.zero;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        _recordDuration += const Duration(seconds: 1);
+      });
+    });
+
+    final command =
+        '-f mjpeg -i http://$_robotIp:81/stream '
+        '-c:v mpeg4 '
+        '-q:v 5 '
+        '-y $_localVideoPath';
+
+    _ffmpegSession =
+    await FFmpegKit.executeAsync(command, (session) async {
+
+      final returnCode = await session.getReturnCode();
+
+      if (ReturnCode.isSuccess(returnCode)) {
+        await _moveToGallery();
+      } else {
+        final logs = await session.getAllLogsAsString();
+        debugPrint("FFmpeg Failed:\n$logs");
       }
 
-    } catch (e) {
-      debugPrint("NSD ERROR: $e");
+      // Restore preview after recording
       setState(() {
-        _isSearching = false;
-        _statusMessage = "Discovery Error: $e";
+        _showPreview = true;
       });
+    });
+  }
+
+  Future<void> _stopRecording() async {
+    _timer?.cancel();
+
+    if (_ffmpegSession != null) {
+      await _ffmpegSession!.cancel();
+      await Future.delayed(const Duration(seconds: 2));
+    }
+
+    setState(() {
+      _isRecording = false;
+    });
+  }
+
+  /* =========================
+     SAVE TO GALLERY
+     ========================= */
+
+  Future<void> _moveToGallery() async {
+    if (_localVideoPath == null) return;
+
+    final file = File(_localVideoPath!);
+    if (!await file.exists() || await file.length() == 0) return;
+
+    final directory = Directory('/storage/emulated/0/DCIM/Pawme');
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+
+    final newPath =
+        '${directory.path}/pawme_${DateTime.now().millisecondsSinceEpoch}.mp4';
+
+    final newFile = await file.copy(newPath);
+
+    await MediaScanner.loadMedia(path: newFile.path);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Video saved to DCIM/Pawme")),
+      );
     }
   }
 
   @override
   void dispose() {
-    if (_discovery != null) stopDiscovery(_discovery!);
+    _timer?.cancel();
+    _ffmpegSession?.cancel();
     super.dispose();
+  }
+
+  String _formatDuration(Duration duration) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    return "${two(duration.inMinutes)}:${two(duration.inSeconds.remainder(60))}";
   }
 
   @override
   Widget build(BuildContext context) {
+    final streamUrl =
+    _robotIp != null ? "http://$_robotIp:81/stream" : "";
+
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text(_isSearching ? "Searching..." : "Pawme Control"),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _isSearching ? null : _startDiscovery,
-          )
-        ],
-      ),
-      body: _isSearching
-          ? _buildLoadingState()
-          : _robotIp == null
-          ? _buildErrorState()
-          : _buildControlUI(),
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: _robotIp == null
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
-          const CircularProgressIndicator(color: AppColors.primary),
-          const SizedBox(height: 24),
-          Text(_statusMessage, style: const TextStyle(color: Colors.white)),
-          const SizedBox(height: 8),
-          const Text("Check your terminal for debug logs", style: TextStyle(color: Colors.grey, fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.location_off, color: Colors.red, size: 60),
-            const SizedBox(height: 16),
-            Text(_statusMessage, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _startDiscovery,
-              child: const Text("Retry Discovery"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildControlUI() {
-    final String streamUrl = "http://$_robotIp:81/stream";
-
-    return Column(
-      children: [
-        Expanded(
-          flex: 3,
-          child: Stack(
-            children: [
-              Center(
-                child: Mjpeg(
-                  isLive: true,
-                  stream: streamUrl,
-                  error: (context, error, stack) => Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.videocam_off, color: Colors.red),
-                      Text("Stream Error: $error", style: const TextStyle(color: Colors.white)),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 10,
-                left: 10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  color: Colors.black54,
-                  child: Text("IP: $_robotIp", style: const TextStyle(color: Colors.green, fontSize: 12)),
-                ),
-              ),
-            ],
-          ),
-        ),
-        _buildJoystick(),
-      ],
-    );
-  }
-
-  Widget _buildJoystick() {
-    return Expanded(
-      flex: 2,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Color(0xFF1A1A1A),
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildControlBtn(Icons.arrow_upward, "forward"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          Expanded(
+            child: Stack(
               children: [
-                _buildControlBtn(Icons.arrow_back, "left"),
-                const SizedBox(width: 40),
-                _buildControlBtn(Icons.arrow_forward, "right"),
+                Center(
+                  child: _showPreview
+                      ? Mjpeg(
+                    key: const ValueKey("preview"),
+                    isLive: true,
+                    stream: streamUrl,
+                  )
+                      : const SizedBox.shrink(),
+                ),
+                if (_isRecording)
+                  Positioned(
+                    top: 40,
+                    right: 20,
+                    child: Text(
+                      _formatDuration(_recordDuration),
+                      style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
               ],
             ),
-            _buildControlBtn(Icons.arrow_downward, "backward"),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildControlBtn(IconData icon, String command) {
-    return GestureDetector(
-      onTapDown: (_) => debugPrint("COMMAND: $command to http://$_robotIp/control?move=$command"),
-      child: Container(
-        margin: const EdgeInsets.all(8),
-        padding: const EdgeInsets.all(15),
-        decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-        child: Icon(icon, color: Colors.white, size: 30),
+          ),
+          const SizedBox(height: 20),
+          GestureDetector(
+            onTap: _toggleRecording,
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.red,
+              child: Icon(
+                _isRecording
+                    ? Icons.stop
+                    : Icons.fiber_manual_record,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+          ),
+          const SizedBox(height: 40),
+        ],
       ),
     );
   }

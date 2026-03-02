@@ -6,6 +6,8 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   firebase_auth
   firebase_core
+  firebase_storage
+  gal
   nsd_windows
   permission_handler_windows
 )
